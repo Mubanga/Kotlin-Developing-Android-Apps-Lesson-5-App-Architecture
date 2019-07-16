@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
+import timber.log.Timber
 
 /**
  * Fragment where the game is played
@@ -45,6 +46,7 @@ class GameFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
+        Timber.d(": onCreateView Called")
         // Inflate view and obtain an instance of the binding class
         binding = DataBindingUtil.inflate(
                 inflater,
@@ -98,6 +100,7 @@ class GameFragment : Fragment() {
      * Called when the game is finished
      */
     private fun gameFinished() {
+        Timber.d("Navigation Game ----> Score")
         val action = GameFragmentDirections.actionGameToScore(score)
         findNavController(this).navigate(action)
     }
@@ -131,11 +134,13 @@ class GameFragment : Fragment() {
     /** Methods for updating the UI **/
 
     private fun updateWordText() {
+        Timber.d(": updateWordText")
         binding.wordText.text = word
 
     }
 
     private fun updateScoreText() {
+        Timber.d(": updateScoreText")
         binding.scoreText.text = score.toString()
     }
 }

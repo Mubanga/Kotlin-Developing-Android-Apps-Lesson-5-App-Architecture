@@ -18,6 +18,7 @@ package com.example.android.guesstheword
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import timber.log.Timber
 
 /**
  * Creates an Activity that hosts all of the fragments in the app
@@ -29,4 +30,28 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        Timber.d(": onRestart Called")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Timber.d(": onStart Called")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Timber.d(": onStop Called")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Timber.d(": onPause Called")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Timber.d(": onResume Called")
+    }
 }

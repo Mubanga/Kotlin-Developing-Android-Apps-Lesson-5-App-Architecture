@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.TitleFragmentBinding
+import timber.log.Timber
 
 /**
  * Fragment for the starting or title screen of the app
@@ -33,11 +34,14 @@ class TitleFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
+
+        Timber.d(": onCreateView Called")
         // Inflate the layout for this fragment
         val binding: TitleFragmentBinding = DataBindingUtil.inflate(
                 inflater, R.layout.title_fragment, container, false)
 
         binding.playGameButton.setOnClickListener {
+            Timber.d(": Navigation: Title ---> Game")
             findNavController().navigate(TitleFragmentDirections.actionTitleToGame())
         }
         return binding.root
