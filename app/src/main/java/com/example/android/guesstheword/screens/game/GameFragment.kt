@@ -134,13 +134,13 @@ class GameFragment : Fragment() {
     /** Methods for updating the UI **/
 
     private fun updateWordText() {
-        Timber.d(": updateWordText")
+        Timber.d(": updateWordText Current Word Is = ${word}")
         binding.wordText.text = word
 
     }
 
     private fun updateScoreText() {
-        Timber.d(": updateScoreText")
+        Timber.d(": updateScoreText Current Score = ${score}")
         binding.scoreText.text = score.toString()
     }
 }
