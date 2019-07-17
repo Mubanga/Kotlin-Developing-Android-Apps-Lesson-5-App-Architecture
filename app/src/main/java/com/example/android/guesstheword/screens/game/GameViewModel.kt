@@ -21,11 +21,17 @@ class GameViewModel : ViewModel() {
 
     // The Current Word
     private val _Word by lazy { MutableLiveData<String>() }
+    val Word: LiveData<String>
+        get() = _Word
 
     // The Current Score
     private val _Score by lazy { MutableLiveData<Int>() }
+    val Score: LiveData<Int>
+        get() = _Score
 
-    private var _isGameFinished = false
+    private val _isGameFinished by lazy { MutableLiveData<Boolean>() }
+    val GameFinished: LiveData<Boolean>
+        get() = _isGameFinished
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
@@ -33,8 +39,8 @@ class GameViewModel : ViewModel() {
     /**
      *  GameFragment UI Widgets
      */
-    private lateinit var  _ScoreText:TextView
-    private lateinit var  _WordText:TextView
+    private lateinit var _ScoreText: TextView
+    private lateinit var _WordText: TextView
 
     init {
         Timber.d(": GameViewModel Created")
@@ -82,13 +88,13 @@ class GameViewModel : ViewModel() {
     /** Methods for buttons presses **/
 
     fun onSkip() {
-    //    score--
+        //    score--
         _Score.value = (_Score.value)?.minus(1)
         nextWord()
     }
 
     fun onCorrect() {
-     //   score++
+        //   score++
         _Score.value = (_Score.value)?.plus(1)
         nextWord()
     }
@@ -101,13 +107,11 @@ class GameViewModel : ViewModel() {
 //    {
 //        return word
 //    }
-    public fun getWordLiveData() : LiveData<String>
-    {
+    public fun getWordLiveData(): LiveData<String> {
         return _Word
     }
 
-    public fun getScoreLiveData() : LiveData<Int>
-    {
+    public fun getScoreLiveData(): LiveData<Int> {
         return _Score
     }
 
@@ -116,17 +120,16 @@ class GameViewModel : ViewModel() {
 //        return score
 //    }
 
-    public fun isGameFinished() : Boolean
-    {
-        return _isGameFinished
-    }
+//    public fun isGameFinished(): Boolean {
+//        return _isGameFinished
+//    }
 
     private fun nextWord() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
-            _isGameFinished = true
+            _isGameFinished.value = true
         } else {
-         //   word = wordList.removeAt(0)
+            //   word = wordList.removeAt(0)
             _Word.value = wordList.removeAt(0)
         }
     }

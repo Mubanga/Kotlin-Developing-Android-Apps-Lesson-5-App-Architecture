@@ -61,6 +61,9 @@ class GameFragment : Fragment() {
         binding.wordText.text = (_GameViewModel.getWordLiveData()?: " ").toString()
         binding.scoreText.text = (_GameViewModel.getScoreLiveData()?: 0).toString()
 
+        /** *******************************************************
+         *  Registering Observers
+         **********************************************************/
 
         // Register The GameFragment As An Observer Of The Score From GameViewModel's Score LiveData Variable
         _GameViewModel.getScoreLiveData().observe(this, Observer { NewScore->
@@ -74,21 +77,29 @@ class GameFragment : Fragment() {
             binding.wordText.text = NewWord.toString()
         })
 
-
-        binding.correctButton.setOnClickListener {
-            _GameViewModel.onCorrect()
-            if(_GameViewModel.isGameFinished())
+        // Register The GameFragment As An Observer Of The Game State (isGameFinished) From GameViewModel's isGameFinished LiveData Variable
+        _GameViewModel.GameFinished.observe(this, Observer { GameIsFinished ->
+            if(GameIsFinished)
             {
                 gameFinished()
             }
+        })
+
+
+        binding.correctButton.setOnClickListener {
+            _GameViewModel.onCorrect()
+//            if(_GameViewModel.isGameFinished())
+//            {
+//                gameFinished()
+//            }
 
         }
 
         binding.skipButton.setOnClickListener {
             _GameViewModel.onSkip()
-            if(_GameViewModel.isGameFinished()) {
-                gameFinished()
-            }
+//            if(_GameViewModel.isGameFinished()) {
+//                gameFinished()
+//            }
         }
 
         return binding.root
