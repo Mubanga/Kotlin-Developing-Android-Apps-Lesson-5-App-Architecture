@@ -1,6 +1,8 @@
 package com.example.android.guesstheword.screens.game
 
 import android.widget.TextView
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import timber.log.Timber
 
@@ -14,8 +16,14 @@ class GameViewModel : ViewModel() {
     // The current word
     private var word = ""
 
-    // The current score
-    private var score = 0
+//    // The current score
+//    private var score = 0
+
+    // The Current Word
+    private val _Word by lazy { MutableLiveData<String>() }
+
+    // The Current Score
+    private val _Score by lazy { MutableLiveData<Int>() }
 
     private var _isGameFinished = false
 
@@ -30,6 +38,7 @@ class GameViewModel : ViewModel() {
 
     init {
         Timber.d(": GameViewModel Created")
+        _Score.value = 0
         resetList()
         nextWord()
 
@@ -73,12 +82,14 @@ class GameViewModel : ViewModel() {
     /** Methods for buttons presses **/
 
     fun onSkip() {
-        score--
+    //    score--
+        _Score.value = (_Score.value)?.minus(1)
         nextWord()
     }
 
     fun onCorrect() {
-        score++
+     //   score++
+        _Score.value = (_Score.value)?.plus(1)
         nextWord()
     }
 
@@ -86,14 +97,24 @@ class GameViewModel : ViewModel() {
     /**
      * Moves to the next word in the list
      */
-    public  fun getWord() : String
+//    public  fun getWord() : String
+//    {
+//        return word
+//    }
+    public fun getWordLiveData() : LiveData<String>
     {
-        return word
+        return _Word
     }
-    public fun getScore() : Int
+
+    public fun getScoreLiveData() : LiveData<Int>
     {
-        return score
+        return _Score
     }
+
+//    public fun getScore() : Int
+//    {
+//        return score
+//    }
 
     public fun isGameFinished() : Boolean
     {
@@ -105,7 +126,8 @@ class GameViewModel : ViewModel() {
         if (wordList.isEmpty()) {
             _isGameFinished = true
         } else {
-            word = wordList.removeAt(0)
+         //   word = wordList.removeAt(0)
+            _Word.value = wordList.removeAt(0)
         }
     }
 }

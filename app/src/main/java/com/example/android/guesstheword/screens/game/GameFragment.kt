@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment.findNavController
@@ -57,23 +58,27 @@ class GameFragment : Fragment() {
         _GameViewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
         //Initialise First Word & Score
-        binding.wordText.text = _GameViewModel.getWord()
-        binding.scoreText.text = _GameViewModel.getScore().toString()
+        binding.wordText.text = (_GameViewModel.getWordLiveData()?: " ").toString()
+        binding.scoreText.text = (_GameViewModel.getScoreLiveData()?: 0).toString()
 
 
+        // Register The GameFragment As An Observer Of The Score From GameViewModel's Score LiveData Variable
+        _GameViewModel.getScoreLiveData().observe(this, Observer { NewScore->
+            Timber.d(": updateScoreText Current Score = ${NewScore}")
+            binding.scoreText.text = NewScore.toString()
+        })
 
+        // Register The GameFragment As An Observer Of The Word From GameViewModel's Word LiveData Variable
+        _GameViewModel.getWordLiveData().observe(this, Observer { NewWord ->
+            Timber.d(": updateWordText Current Word Is = ${NewWord}")
+            binding.wordText.text = NewWord.toString()
+        })
 
 
         binding.correctButton.setOnClickListener {
             _GameViewModel.onCorrect()
-            if(!_GameViewModel.isGameFinished())
+            if(_GameViewModel.isGameFinished())
             {
-                updateScoreText()
-                updateWordText()
-            }
-            else
-            {
-                updateScoreText()
                 gameFinished()
             }
 
@@ -81,13 +86,7 @@ class GameFragment : Fragment() {
 
         binding.skipButton.setOnClickListener {
             _GameViewModel.onSkip()
-            if(!_GameViewModel.isGameFinished()) {
-                updateScoreText()
-                updateWordText()
-            }
-            else
-            {
-                updateScoreText()
+            if(_GameViewModel.isGameFinished()) {
                 gameFinished()
             }
         }
@@ -102,21 +101,22 @@ class GameFragment : Fragment() {
      */
     private fun gameFinished() {
         Timber.d("Navigation Game ----> Score")
-            val action = GameFragmentDirections.actionGameToScore(_GameViewModel.getScore())
+        // Elvis Operator " ?: " Will Produce Zero If The LiveData From ScoreLiveData Ends Up Being Null
+            val action = GameFragmentDirections.actionGameToScore(_GameViewModel.getScoreLiveData().value?: 0)
             findNavController(this).navigate(action)
     }
 
 
     /** Methods for updating the UI **/
 
-    private fun updateWordText() {
-        Timber.d(": updateWordText Current Word Is = ${_GameViewModel.getWord()}")
-        binding.wordText.text = _GameViewModel.getWord()
-
-    }
-
-    private fun updateScoreText() {
-        Timber.d(": updateScoreText Current Score = ${_GameViewModel.getScore()}")
-        binding.scoreText.text = _GameViewModel.getScore().toString()
-    }
+//    private fun updateWordText() {
+//        Timber.d(": updateWordText Current Word Is = ${_GameViewModel.getWord()}")
+//        binding.wordText.text = _GameViewModel.getWord()
+//
+//    }
+//
+//    private fun updateScoreText() {
+//        Timber.d(": updateScoreText Current Score = ${_GameViewModel.getScore()}")
+//        binding.scoreText.text = _GameViewModel.getScore().toString()
+//    }
 }
