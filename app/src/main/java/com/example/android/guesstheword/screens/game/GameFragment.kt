@@ -22,6 +22,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
@@ -32,14 +34,7 @@ import timber.log.Timber
  */
 class GameFragment : Fragment() {
 
-    // The current word
-    private var word = ""
-
-    // The current score
-    private var score = 0
-
-    // The list of words - the front of the list is the next word to guess
-    private lateinit var wordList: MutableList<String>
+    private lateinit var _GameViewModel: GameViewModel
 
     private lateinit var binding: GameFragmentBinding
 
@@ -55,92 +50,73 @@ class GameFragment : Fragment() {
                 false
         )
 
-        resetList()
-        nextWord()
+        Timber.d(": GameViewModel Called With Instance Of!")
+        /** Makes A Call To ViewModelProviders To Return An Instance Of GameViewModel
+         * To Associate It With The GameFragment For The Duration Of The FragmentLifeCycle
+         */
+        _GameViewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
-        binding.correctButton.setOnClickListener { onCorrect() }
-        binding.skipButton.setOnClickListener { onSkip() }
-        updateScoreText()
-        updateWordText()
+        //Initialise First Word & Score
+        binding.wordText.text = _GameViewModel.getWord()
+        binding.scoreText.text = _GameViewModel.getScore().toString()
+
+
+
+
+
+        binding.correctButton.setOnClickListener {
+            _GameViewModel.onCorrect()
+            if(!_GameViewModel.isGameFinished())
+            {
+                updateScoreText()
+                updateWordText()
+            }
+            else
+            {
+                updateScoreText()
+                gameFinished()
+            }
+
+        }
+
+        binding.skipButton.setOnClickListener {
+            _GameViewModel.onSkip()
+            if(!_GameViewModel.isGameFinished()) {
+                updateScoreText()
+                updateWordText()
+            }
+            else
+            {
+                updateScoreText()
+                gameFinished()
+            }
+        }
+
         return binding.root
 
     }
 
-    /**
-     * Resets the list of words and randomizes the order
-     */
-    private fun resetList() {
-        wordList = mutableListOf(
-                "queen",
-                "hospital",
-                "basketball",
-                "cat",
-                "change",
-                "snail",
-                "soup",
-                "calendar",
-                "sad",
-                "desk",
-                "guitar",
-                "home",
-                "railway",
-                "zebra",
-                "jelly",
-                "car",
-                "crow",
-                "trade",
-                "bag",
-                "roll",
-                "bubble"
-        )
-        wordList.shuffle()
-    }
 
     /**
      * Called when the game is finished
      */
     private fun gameFinished() {
         Timber.d("Navigation Game ----> Score")
-        val action = GameFragmentDirections.actionGameToScore(score)
-        findNavController(this).navigate(action)
+            val action = GameFragmentDirections.actionGameToScore(_GameViewModel.getScore())
+            findNavController(this).navigate(action)
     }
 
-    /**
-     * Moves to the next word in the list
-     */
-    private fun nextWord() {
-        //Select and remove a word from the list
-        if (wordList.isEmpty()) {
-            gameFinished()
-        } else {
-            word = wordList.removeAt(0)
-        }
-        updateWordText()
-        updateScoreText()
-    }
-
-    /** Methods for buttons presses **/
-
-    private fun onSkip() {
-        score--
-        nextWord()
-    }
-
-    private fun onCorrect() {
-        score++
-        nextWord()
-    }
 
     /** Methods for updating the UI **/
 
     private fun updateWordText() {
-        Timber.d(": updateWordText Current Word Is = ${word}")
-        binding.wordText.text = word
+        Timber.d(": updateWordText Current Word Is = ${_GameViewModel.getWord()}")
+        binding.wordText.text = _GameViewModel.getWord()
 
     }
 
     private fun updateScoreText() {
-        Timber.d(": updateScoreText Current Score = ${score}")
-        binding.scoreText.text = score.toString()
+        Timber.d(": updateScoreText Current Score = ${_GameViewModel.getScore()}")
+        binding.scoreText.text = _GameViewModel.getScore().toString()
     }
 }
