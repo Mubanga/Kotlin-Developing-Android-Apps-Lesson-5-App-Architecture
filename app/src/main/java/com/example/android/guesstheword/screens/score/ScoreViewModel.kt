@@ -26,7 +26,8 @@ class ScoreViewModel(FinalScore: Int) : ViewModel() {
 
     init {
         Timber.d(" Final Score is ${FinalScore}")
-        _FinalScore.value = FinalScore
+        _FinalScore.value = FinalScore ?: 0
+        _EventPlayAgain.value = false
     }
 
     /**
@@ -34,6 +35,7 @@ class ScoreViewModel(FinalScore: Int) : ViewModel() {
      */
     public fun onPlayAgain()
     {
+        Timber.d("onPlayAgain Called Here")
         _EventPlayAgain.value = true
     }
 

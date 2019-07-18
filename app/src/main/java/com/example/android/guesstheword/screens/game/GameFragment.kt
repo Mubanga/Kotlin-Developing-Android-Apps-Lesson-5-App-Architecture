@@ -16,11 +16,15 @@
 
 package com.example.android.guesstheword.screens.game
 
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -58,6 +62,13 @@ class GameFragment : Fragment() {
          */
         _GameViewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
+
+        /**
+         *  Setup DataBinding Expressions For The GameFragment Layout
+         */
+        binding.gameViewModel = _GameViewModel
+        binding.lifecycleOwner = this
+
         //Initialise First Word & Score
         binding.wordText.text = (_GameViewModel.getWordLiveData()?: " ").toString()
         binding.scoreText.text = (_GameViewModel.getScoreLiveData()?: 0).toString()
@@ -68,16 +79,16 @@ class GameFragment : Fragment() {
          **********************************************************/
 
         // Register The GameFragment As An Observer Of The Score From GameViewModel's Score LiveData Variable
-        _GameViewModel.getScoreLiveData().observe(this, Observer { NewScore->
-            Timber.d(": updateScoreText Current Score = ${NewScore}")
-            binding.scoreText.text = NewScore.toString()
-        })
+//        _GameViewModel.getScoreLiveData().observe(this, Observer { NewScore->
+//            Timber.d(": updateScoreText Current Score = ${NewScore}")
+//            binding.scoreText.text = NewScore.toString()
+//        })
 
         // Register The GameFragment As An Observer Of The Word From GameViewModel's Word LiveData Variable
-        _GameViewModel.getWordLiveData().observe(this, Observer { NewWord ->
-            Timber.d(": updateWordText Current Word Is = ${NewWord}")
-            binding.wordText.text = NewWord.toString()
-        })
+//        _GameViewModel.getWordLiveData().observe(this, Observer { NewWord ->
+//            Timber.d(": updateWordText Current Word Is = ${NewWord}")
+//            binding.wordText.text = NewWord.toString()
+//        })
 
         // Register The GameFragment As An Observer Of The Game State (isGameFinished) From GameViewModel's isGameFinished LiveData Variable
         _GameViewModel.GameFinished.observe(this, Observer { GameIsFinished ->
@@ -87,29 +98,53 @@ class GameFragment : Fragment() {
             }
         })
 
-        _GameViewModel.CurrentTime.observe(this, Observer { ElapsedTime ->
-            binding.timerText.text = DateUtils.formatElapsedTime(ElapsedTime)
+        _GameViewModel.CurrentBuzzerPattern.observe(this, Observer { Buzzing ->
+            when(Buzzing)
+            {
+                BuzzType.NO_BUZZ -> buzz(_GameViewModel._BuzzArrayType.value!!)
+                BuzzType.COUNTDOWN_PANIC -> buzz(_GameViewModel._BuzzArrayType.value!!)
+                BuzzType.CORRECT -> buzz(_GameViewModel._BuzzArrayType.value!!)
+                BuzzType.GAME_OVER -> buzz(_GameViewModel._BuzzArrayType.value!!)
+            }
         })
 
 
-        binding.correctButton.setOnClickListener {
-            _GameViewModel.onCorrect()
-//            if(_GameViewModel.isGameFinished())
-//            {
-//                gameFinished()
-//            }
+//        _GameViewModel.CurrentTime.observe(this, Observer { ElapsedTime ->
+//            binding.timerText.text = DateUtils.formatElapsedTime(ElapsedTime)
+//        })
 
-        }
 
-        binding.skipButton.setOnClickListener {
-            _GameViewModel.onSkip()
-//            if(_GameViewModel.isGameFinished()) {
-//                gameFinished()
-//            }
-        }
+//        binding.correctButton.setOnClickListener {
+//            _GameViewModel.onCorrect()
+////            if(_GameViewModel.isGameFinished())
+////            {
+////                gameFinished()
+////            }
+//
+//        }
+//
+//        binding.skipButton.setOnClickListener {
+//            _GameViewModel.onSkip()
+////            if(_GameViewModel.isGameFinished()) {
+////                gameFinished()
+////            }
+//        }
 
         return binding.root
 
+    }
+
+    private fun buzz(pattern: LongArray) {
+        val buzzer = activity?.getSystemService<Vibrator>()
+
+        buzzer?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                buzzer.vibrate(VibrationEffect.createWaveform(pattern, -1))
+            } else {
+                //deprecated in API 26
+                buzzer.vibrate(pattern, -1)
+            }
+        }
     }
 
 
